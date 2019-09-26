@@ -71,9 +71,13 @@ weather_df %>%
 ```
 
 ```{r plots}
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
+  geom_smooth(se = FALSE)
+
 ggplot(weather_df, aes(x = tmax, y = tmin)) + 
   geom_hex()
 
+ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
 ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
 
 ggplot(weather_df, aes(x = tmax)) + 
