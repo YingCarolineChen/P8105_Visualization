@@ -1,18 +1,35 @@
 ---
-title: "Visual1"
+title: "Visual1: ggplot1"
 author: "Ying Chen"
 date: "9/26/2019"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+# only use this package for onething, but not too much
 library(ggridges)
+library(hexbin)
 
 ```
-## R Markdown
-```{r}
+
+## base R has aweful plot, don't use it, on the right hand is the ggplot 
+## has legend and axis are well labeled
+## ggplot will be the function to use all the time for now
+## 2013-2014 came out ggplot, 
+## ggplot2/latice is another graphic function
+## tidy data is very important!!
+## grammer of graphics (gg)
+## starting with dataset, features of graphic (axis, color) that you care and map to variables of data, geom to show 
+## panels ... be consistent ... 
+
+
+```{r load_data, cache=TRUE}
+# national geographic and weather service data
+# data are publically available
+# download data from three stations
+# daily weather information of the three stations
 weather_df = 
   rnoaa::meteo_pull_monitors(c("USW00094728", "USC00519397", "USS0023B17S"),
                       var = c("PRCP", "TMIN", "TMAX"), 
@@ -22,11 +39,14 @@ weather_df =
     name = recode(id, USW00094728 = "CentralPark_NY", 
                       USC00519397 = "Waikiki_HA",
                       USS0023B17S = "Waterhole_WA"),
+    # .1 celc has to devided by 10
     tmin = tmin / 10,
     tmax = tmax / 10) %>%
   select(name, id, everything())
 weather_df
 ```
+
+## create a ggplot
 
 ```{r}
 ggplot(weather_df, aes(x = tmin, y = tmax))
@@ -34,9 +54,16 @@ ggplot(weather_df, aes(x = tmin, y = tmax))
 ggplot(weather_df, aes(x = tmin, y = tmax)) + 
   geom_point()
 
-weather_df %>%
-  ggplot(aes(x = tmin, y = tmax)) + 
-  geom_point()
+# alternative way of making this plot
+# default is printing the plot
+# Most time not using the style
+#weather_df %>% filter(name =="CentralPark_NY")
+#scaterplot = weather_df %>% 
+#  ggplot(aes(x = timin, y = tmax)) + geom_point()
+#scaterplot
+#weather_df %>%
+#  ggplot(aes(x = tmin, y = tmax)) + 
+#  geom_point()
 
 plot_weather = 
   weather_df %>%
@@ -49,18 +76,25 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) +
 
 ggplot(weather_df, aes(x = tmin, y = tmax)) + 
   geom_point(aes(color = name), alpha = .5) +
+  # se: grey area not certain area, not very useful to set as true
   geom_smooth(se = FALSE)
 
+# facet
+# do not send multiple plots.
 ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) + 
   geom_point(alpha = .5) +
   geom_smooth(se = FALSE) + 
   facet_grid(. ~ name)
 
+# this is fine, but not very interesting
+# color = name is global
 ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
+  #size = prcp, put bubbles accounts for prcp amont
   geom_point(aes(size = prcp), alpha = .5) +
   geom_smooth(se = FALSE) + 
   facet_grid(. ~ name)
 
+# alpha is the transparent level. .1 is not at all
 weather_df %>% 
   filter(name == "CentralPark_NY") %>% 
   mutate(tmax_fahr = tmax * (9 / 5) + 32,
@@ -68,9 +102,18 @@ weather_df %>%
   ggplot(aes(x = tmin_fahr, y = tmax_fahr)) +
   geom_point(alpha = .5) + 
   geom_smooth(method = "lm", se = FALSE)
+
 ```
 
-```{r plots}
+## why do 'aes' positions mater? se = false, no CIs
+## define color at x, y level or geom level makes the plots looks different
+## at geom level, the smooth color has only one color
+## outside geom, it applies smooth line colors according to the names (three different smooth lines)
+## can modify the graphics features quickly with little modification.
+
+## some extra stuff
+
+```{r extra}
 ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
   geom_smooth(se = FALSE)
 

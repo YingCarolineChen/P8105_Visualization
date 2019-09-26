@@ -28,21 +28,21 @@ weather_df =
     ##   method           from
     ##   print.cache_info httr
 
-    ## file path:          C:\Users\chenyin\AppData\Local\rnoaa\rnoaa\Cache/ghcnd/USW00094728.dly
+    ## file path:          /Users/macbook/Library/Caches/rnoaa/ghcnd/USW00094728.dly
 
-    ## file last updated:  2019-09-26 09:00:27
+    ## file last updated:  2019-09-04 21:33:58
 
     ## file min/max dates: 1869-01-01 / 2019-09-30
 
-    ## file path:          C:\Users\chenyin\AppData\Local\rnoaa\rnoaa\Cache/ghcnd/USC00519397.dly
+    ## file path:          /Users/macbook/Library/Caches/rnoaa/ghcnd/USC00519397.dly
 
-    ## file last updated:  2019-09-26 09:00:43
+    ## file last updated:  2019-09-04 21:34:09
 
     ## file min/max dates: 1965-01-01 / 2019-09-30
 
-    ## file path:          C:\Users\chenyin\AppData\Local\rnoaa\rnoaa\Cache/ghcnd/USS0023B17S.dly
+    ## file path:          /Users/macbook/Library/Caches/rnoaa/ghcnd/USS0023B17S.dly
 
-    ## file last updated:  2019-09-26 09:00:49
+    ## file last updated:  2019-09-04 21:34:13
 
     ## file min/max dates: 1999-09-01 / 2019-09-30
 
@@ -63,7 +63,7 @@ weather_df
     ##  8 CentralPark_NY USW00094728 2017-01-08     0  -3.8  -8.8
     ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9
     ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6  
-    ## # ... with 1,085 more rows
+    ## # … with 1,085 more rows
 
 ``` r
 ggplot(weather_df, aes(x = tmin, y = tmax))
@@ -168,6 +168,17 @@ weather_df %>%
 ![](Visualization-1_files/figure-gfm/unnamed-chunk-2-9.png)<!-- -->
 
 ``` r
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
+  geom_smooth(se = FALSE)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+
+![](Visualization-1_files/figure-gfm/plots-1.png)<!-- -->
+
+``` r
 ggplot(weather_df, aes(x = tmax, y = tmin)) + 
   geom_hex()
 ```
@@ -177,14 +188,6 @@ ggplot(weather_df, aes(x = tmax, y = tmin)) +
     ## Warning: Computation failed in `stat_binhex()`:
     ## Package `hexbin` required for `stat_binhex`.
     ## Please install and try again.
-
-![](Visualization-1_files/figure-gfm/plots-1.png)<!-- -->
-
-``` r
-ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin), color = "blue")
-```
-
-    ## Warning: Removed 15 rows containing missing values (geom_point).
 
 ![](Visualization-1_files/figure-gfm/plots-2.png)<!-- -->
 
@@ -197,6 +200,14 @@ ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
 ![](Visualization-1_files/figure-gfm/plots-3.png)<!-- -->
 
 ``` r
+ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](Visualization-1_files/figure-gfm/plots-4.png)<!-- -->
+
+``` r
 ggplot(weather_df, aes(x = tmax)) + 
   geom_histogram()
 ```
@@ -205,7 +216,7 @@ ggplot(weather_df, aes(x = tmax)) +
 
     ## Warning: Removed 3 rows containing non-finite values (stat_bin).
 
-![](Visualization-1_files/figure-gfm/plots-4.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-5.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = tmax, fill = name)) + 
@@ -214,7 +225,7 @@ ggplot(weather_df, aes(x = tmax, fill = name)) +
 
     ## Warning: Removed 3 rows containing non-finite values (stat_bin).
 
-![](Visualization-1_files/figure-gfm/plots-5.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-6.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = tmax, fill = name)) + 
@@ -223,7 +234,7 @@ ggplot(weather_df, aes(x = tmax, fill = name)) +
 
     ## Warning: Removed 3 rows containing non-finite values (stat_density).
 
-![](Visualization-1_files/figure-gfm/plots-6.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-7.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = name, y = tmax)) + geom_boxplot()
@@ -231,7 +242,7 @@ ggplot(weather_df, aes(x = name, y = tmax)) + geom_boxplot()
 
     ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
 
-![](Visualization-1_files/figure-gfm/plots-7.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-8.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = name, y = tmax)) + 
@@ -243,7 +254,7 @@ ggplot(weather_df, aes(x = name, y = tmax)) +
 
     ## Warning: Removed 3 rows containing non-finite values (stat_summary).
 
-![](Visualization-1_files/figure-gfm/plots-8.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-9.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = tmax, y = name)) + 
@@ -254,7 +265,7 @@ ggplot(weather_df, aes(x = tmax, y = name)) +
 
     ## Warning: Removed 3 rows containing non-finite values (stat_density_ridges).
 
-![](Visualization-1_files/figure-gfm/plots-9.png)<!-- -->
+![](Visualization-1_files/figure-gfm/plots-10.png)<!-- -->
 
 ``` r
 ggplot(weather_df, aes(x = prcp)) + 
