@@ -74,7 +74,6 @@ weather_df %>%
 ggplot(weather_df, aes(x = tmax, y = tmin)) + 
   geom_hex()
 
-ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin), color = "blue")
 ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
 
 ggplot(weather_df, aes(x = tmax)) + 
