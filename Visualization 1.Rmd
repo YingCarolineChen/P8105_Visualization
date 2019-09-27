@@ -117,6 +117,10 @@ weather_df %>%
 ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
   geom_smooth(se = FALSE)
 
+# 2d density
+# with each location, how many data points in each location
+# when you want to show counts in each point, use color to show density
+# geom_bin2d() does the samething has geom_hex()
 ggplot(weather_df, aes(x = tmax, y = tmin)) + 
   geom_hex()
 
@@ -126,24 +130,62 @@ ggplot(weather_df) + geom_point(aes(x = tmax, y = tmin, color = "blue"))
 ggplot(weather_df, aes(x = tmax)) + 
   geom_histogram()
 
+# use fill instead of color for each bar
+# position makes the bars next to each other, side by side comparisons
+# histograms does not need any y axis to be defined
 ggplot(weather_df, aes(x = tmax, fill = name)) + 
-  geom_histogram(position = "dodge", binwidth = 2)
+  geom_histogram(position = "dodge", binwidth = 2) 
+# why three panels did not work?
+   geom_hex()
 
-
+# Jeff's favorite histograms
 ggplot(weather_df, aes(x = tmax, fill = name)) + 
-  geom_density(alpha = .4, adjust = .5, color = "blue")
-
+  geom_density(alpha = .4, adjust = .5, color = "blue") 
+ 
 ggplot(weather_df, aes(x = name, y = tmax)) + geom_boxplot()
+
+# violine plots occational useful only if there some too many groups to make the comparisons, can viz it easily.
 
 ggplot(weather_df, aes(x = name, y = tmax)) + 
   geom_violin(aes(fill = name), color = "blue", alpha = .5) + 
   stat_summary(fun.y = median, geom = "point", color = "blue", size = 4)
 
+# Jeff likes ridges plots
+# each of the densities of each location, gives you advantages of looking at each density easily, a tall ridge plot to identify bimodelity to do comparisons among groups (website)
 ggplot(weather_df, aes(x = tmax, y = name)) + 
   geom_density_ridges(scale = .85)
+```
+## piping will make the plots using the same dataset over and over again.
+## se = FAUSE use standard errors as CI might be confusing
+## connect ggplot segments using +, with piping use %>% 
 
+## saving a plot
+```{r, fig.width = 12}
+ggp_ridge_temp = 
+  weather_df %>% 
+  ggplot(aes(x = tmax, y = name)) + 
+  geom_density_ridges(scale = .85)
+ggsave("ggplot_temp_ridge.pdf", ggp_ridge_temp)
 ```
 
+## embedding the plots inside
+## controlling figure width
+## need debug this code chunk
+
+# can setup width and height
+```{r, fig.width = 12}
+ggp_ridge_temp = 
+  weather_df %>% 
+  ggplot(aes(x = tmax, y = name)) + 
+  geom_density_ridges(scale = .85)
+ggsave("ggplot_temp_ridge.pdf", ggp_ridge_temp)
+```
+
+
+
+
+## class stops here
+## codes below will be discussed next class
 
 ``` {r}
 ggplot(weather_df, aes(x = prcp)) + 
@@ -151,7 +193,6 @@ ggplot(weather_df, aes(x = prcp)) +
 
 ggplot(weather_df, aes(x = prcp, y = name)) + 
   geom_density_ridges(scale = .85)
-
 
 ggplot(weather_df, aes(y = prcp, x = name)) + 
   geom_boxplot() 
