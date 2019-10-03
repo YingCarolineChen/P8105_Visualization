@@ -5,16 +5,40 @@ date: "10/3/2019"
 output: github_document
 ---
  
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r EDA, include=FALSE}
+
 library(tidyverse)
-# only use this package for onething, but not too much
+library(viridis)
 library(ggridges)
 library(hexbin)
- 
- 
+
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE,
+  fig = fig.width = 8,
+  fig.height = 6,
+  out.width = "90%")
 ```
  
+### compute numerica data for EDA
+### imported and coded correctly
+### producing numerica summary
+### groups that you are interested in. less specified. defining different groups. average responses acrossinng groups
+### nested within other variables. 
+### multiple layers: tx group, gender groups, plots, 
+### measurement of center, mean, median, etc.
+### variability: std, median abosolute deviation, n x group, boxplot, 
+
+## tools: group_by(), summarize()
+### can do a lot of different things
+### does not change your dataset with grouping, added a layer ontop of the dataset
+### group once created, it will be there and should be ungroup later. Keep in mind
+# difficult to debug!!!
+
+## EDA: lead to formal analysis not valuable later. not overtaken the primary analysis
+## preplanned analysis, not random thing. stay with the primary analsis first if NS, go to 2ndary analysis. 
+
+
 ```{r}
 weather_df =
   rnoaa::meteo_pull_monitors(c("USW00094728", "USC00519397", "USS0023B17S"),
