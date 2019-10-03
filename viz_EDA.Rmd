@@ -1,0 +1,199 @@
+---
+title: "Viz_EDA"
+author: "Ying Chen"
+date: "10/3/2019"
+output: github_document
+---
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+# only use this package for onething, but not too much
+library(ggridges)
+library(hexbin)
+ 
+ 
+```
+ 
+```{r}
+weather_df =
+  rnoaa::meteo_pull_monitors(c("USW00094728", "USC00519397", "USS0023B17S"),
+                      var = c("PRCP", "TMIN", "TMAX"),
+                      date_min = "2016-01-01",
+                      date_max = "2016-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY",
+                      USC00519397 = "Waikiki_HA",
+                      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month = lubridate::floor_date(date, unit = "month")) %>%
+  select(name, id, date, month, everything())
+ 
+ 
+weather_df %>%
+  group_by(name, month)
+ 
+weather_df %>%
+  group_by(month) %>%
+  summarize(n = n())
+ 
+weather_df %>%
+  count(month, name = "n_days")
+ 
+weather_df %>%
+  pull(month) %>%
+  table
+ 
+weather_df %>%
+  group_by(month) %>%
+  summarize(
+    n_obs = n(),
+    n_days = n_distinct(date))
+ 
+weather_df %>%
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >=5 ~ "not_cold",
+      TRUE     ~ ""
+  )) %>%
+  filter(name != "Waikiki_HA") %>%
+  group_by(name, cold) %>%
+  summarize(count = n())
+ 
+weather_df %>%
+  mutate(cold = case_when(
+    tmax < 5 ~ "cold",
+    tmax >=5 ~ "not_cold",
+    TRUE     ~ ""
+  )) %>%
+  filter(name != "Waikiki_HA") %>%
+  janitor::tabyl(name, cold)
+ 
+```
+ 
+##Standard statistical summaries are regularly computed in summarize() using functions like mean(), median(), var(), sd(), mad(), IQR(), min(), and max(). To use these, you indicate the variable to which they apply and include any additional arguments as necessary.
+ 
+ 
+```{r}
+weather_df %>%
+  group_by(month) %>%
+  summarize(
+    mean_tmax = mean(tmax),
+    mean_prec = mean(prcp, na.rm = TRUE),
+    median_tmax = median(tmax),
+    sd_tmax = sd(tmax))
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  summarize(
+    mean_tmax = mean(tmax),
+    median_tmax = median(tmax))
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  summarize(mean_tmax = mean(tmax)) %>%
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+    geom_point() + geom_line() +
+    theme(legend.position = "bottom")
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  summarize(mean_tmax = mean(tmax)) %>%
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax) %>%
+  knitr::kable(digits = 1)
+ 
+weather_df %>%
+  group_by(name) %>%
+  mutate(centered_tmax = tmax - mean(tmax)) %>%
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+    geom_point()
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  mutate(temp_ranking = min_rank(tmax))
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  filter(min_rank(tmax) < 2)
+ 
+weather_df %>%
+  group_by(name, month) %>%
+  filter(min_rank(desc(tmax)) < 4)
+ 
+```
+ 
+ 
+### lags, are used to compare an observation to it’s previous value.
+ 
+```{r}
+weather_df %>%
+  group_by(name) %>%
+  mutate(temp_change = tmax - lag(tmax))
+ 
+weather_df %>%
+  group_by(name) %>%
+  mutate(temp_change = tmax - lag(tmax)) %>%
+  summarize(temp_change_sd = sd(temp_change, na.rm = TRUE),
+            temp_change_max = max(temp_change, na.rm = TRUE))
+ 
+```
+### Practices
+ 
+```{r}
+pulse_data =
+  haven::read_sas("./data/public_pulse_data.sas7bdat") %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit",
+    names_prefix = "bdi_score_",
+    values_to = "bdi") %>%
+  select(id, visit, everything()) %>%
+  mutate(
+    visit = replace(visit, visit == "bl", "00m"),
+    visit = factor(visit, levels = str_c(c("00", "01", "06", "12"), "m"))) %>%
+  arrange(id, visit)
+ 
+pulse_data %>%
+  group_by(visit) %>%
+  summarize(
+    mean_bdi = mean(bdi, na.rm = TRUE),
+    median_bdi = median(bdi, na.rm = TRUE)) %>%
+  knitr::kable(digits = 3)
+ 
+pup_data =
+  read_csv("./data/FAS_pups.csv", col_types = "ciiiii") %>%
+  janitor::clean_names() %>%
+  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
+ 
+litter_data =
+  read_csv("./data/FAS_litters.csv", col_types = "ccddiiii") %>%
+  janitor::clean_names() %>%
+  select(-pups_survive) %>%
+  separate(group, into = c("dose", "day_of_tx"), sep = 3) %>%
+  mutate(wt_gain = gd18_weight - gd0_weight,
+         day_of_tx = as.numeric(day_of_tx))
+ 
+fas_data = left_join(pup_data, litter_data, by = "litter_number")
+ 
+fas_data %>%
+  group_by(dose, day_of_tx) %>%
+  summarize(mean_pivot = mean(pd_pivot, na.rm = TRUE)) %>%
+  filter(!is.na(dose)) %>%
+  spread(key = dose, value = mean_pivot) %>%
+  knitr::kable(digits = 3)
+```
+ 
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
