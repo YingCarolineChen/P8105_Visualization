@@ -57,7 +57,7 @@ weather_df =
 ```
 
 ## `group_by` and and counting
-
+## code chunk specific
 ```{r}
 ## show on top of cousour
 weather_df %>%
@@ -148,10 +148,14 @@ weather_df %>%
  
 ```{r}
 weather_df %>%
-  group_by(month) %>%
+  group_by(name) %>%
   summarize(
+    n = n (),
     mean_tmax = mean(tmax),
+    # drop na
     mean_prec = mean(prcp, na.rm = TRUE),
+    # take a look before remove
+    #median_prcp = median(prcp),
     median_tmax = median(tmax),
     sd_tmax = sd(tmax))
  
@@ -160,7 +164,9 @@ weather_df %>%
   summarize(
     mean_tmax = mean(tmax),
     median_tmax = median(tmax))
- 
+```
+
+```{r}
 weather_df %>%
   group_by(name, month) %>%
   summarize(mean_tmax = mean(tmax)) %>%
@@ -175,16 +181,33 @@ weather_df %>%
     names_from = name,
     values_from = mean_tmax) %>%
   knitr::kable(digits = 1)
+```
+
  
+ # grouped mutates
+ ### dont forget that you can ungroup
+ 
+```{r}
 weather_df %>%
   group_by(name) %>%
-  mutate(centered_tmax = tmax - mean(tmax)) %>%
+  ### any thing in mutate is group specific fashion
+  ### centered_tmax: is group specific tmax
+  ### every group is not centered around the 0 line
+  mutate(centered_tmax = tmax - mean(tmax, na.rm = TRUE)) %>%
   ggplot(aes(x = date, y = centered_tmax, color = name)) +
     geom_point()
- 
+
+```
+
+#Window functions in grouped mutations ...
+#Gives the rank
+
+
+```{r}
 weather_df %>%
   group_by(name, month) %>%
-  mutate(temp_ranking = min_rank(tmax))
+  mutate(temp_ranking = min_rank(tmax)) %>% 
+ #filter(min_rank(desc(tmax)))
  
 weather_df %>%
   group_by(name, month) %>%
@@ -196,9 +219,8 @@ weather_df %>%
  
 ```
  
- 
 ### lags, are used to compare an observation to it’s previous value.
- 
+
 ```{r}
 weather_df %>%
   group_by(name) %>%
@@ -208,8 +230,8 @@ weather_df %>%
   group_by(name) %>%
   mutate(temp_change = tmax - lag(tmax)) %>%
   summarize(temp_change_sd = sd(temp_change, na.rm = TRUE),
-            temp_change_max = max(temp_change, na.rm = TRUE))
- 
+            temp_change_max = max(temp_change, na.rm = TRUE))%>%
+  knitr::kable(digits = 1)
 ```
 ### Practices
  
