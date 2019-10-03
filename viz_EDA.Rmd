@@ -15,7 +15,7 @@ library(hexbin)
 knitr::opts_chunk$set(
   echo = TRUE, 
   warning = FALSE,
-  fig = fig.width = 8,
+  fig.width = 8,
   fig.height = 6,
   out.width = "90%")
 ```
@@ -51,20 +51,30 @@ weather_df =
                       USS0023B17S = "Waterhole_WA"),
     tmin = tmin / 10,
     tmax = tmax / 10,
+    ## take the date and round it
     month = lubridate::floor_date(date, unit = "month")) %>%
   select(name, id, date, month, everything())
- 
- 
+```
+
+## `group_by` and and counting
+
+```{r}
+## show on top of cousour
 weather_df %>%
   group_by(name, month)
  
+# each group separately, taking the n
+# new df with summary
+# each month has different observations
 weather_df %>%
   group_by(month) %>%
   summarize(n = n())
- 
+
 weather_df %>%
-  count(month, name = "n_days")
+  group_by(name) %>%
+  summarize(n = n())
  
+## Don't use this code
 weather_df %>%
   pull(month) %>%
   table
@@ -73,8 +83,33 @@ weather_df %>%
   group_by(month) %>%
   summarize(
     n_obs = n(),
+    #unique ones, not used a lot
     n_days = n_distinct(date))
- 
+
+weather_df %>%
+  count(month, name = "n_days")
+
+weather_df %>%
+  count(name, month)
+```
+
+base R table function is as useful
+Don't use the following code
+```{r, eval=FALSE}
+weather_df %>% 
+  pull(month) %>% 
+  table()
+```
+
+lets make a nice table
+
+```{r}
+weather_df %>% 
+  count(name) %>% 
+          knitr::kable()
+```
+
+```{r}
 weather_df %>%
   mutate(
     cold = case_when(
@@ -84,15 +119,26 @@ weather_df %>%
   )) %>%
   filter(name != "Waikiki_HA") %>%
   group_by(name, cold) %>%
+  pivot_wider(
+    names_from = cold,
+    #values_from = n
+  )
   summarize(count = n())
- 
+```
+
+## janitor::tabyl
+
+```{r 2_2 table}
 weather_df %>%
+  filter(name != "Waikiki_HA") %>%
+  # 2 or more variables that you are interested in
   mutate(cold = case_when(
     tmax < 5 ~ "cold",
     tmax >=5 ~ "not_cold",
+    # anything else is empty
     TRUE     ~ ""
   )) %>%
-  filter(name != "Waikiki_HA") %>%
+  ## tabyl: a function from janitor to create a 2x2 tables.
   janitor::tabyl(name, cold)
  
 ```
